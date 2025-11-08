@@ -79,7 +79,7 @@
   </div>
 
   <script>
-    const API_BASE_URL = "https://api.knot.com";
+    const API_BASE_URL = "https://api.why-knot.tech";
     const KNOT_CLIENT_ID = "dda0778d-9486-47f8-bd80-6f2512f9bcdb";
     const KNOT_ENVIRONMENT = "development";
     const KNOT_PRODUCT = "transaction_link";
@@ -88,9 +88,13 @@
     let latestSession = null;
     let knotInstance = null;
 
+    const AUTH_HEADER = "Basic ZGRhMDc3OGQtOTQ4Ni00N2Y4LWJkODAtNmYyNTEyZjliY2RiOjg4NGQ4NGU4NTUwNTRjMzJhOGUzOWQwOGZjZDk4NDVk";
+
     async function callHealth() {
       try {
-        const res = await fetch(`${API_BASE_URL}/health`);
+        const res = await fetch(`${API_BASE_URL}/health`, {
+          headers: { Authorization: AUTH_HEADER }
+        });
         document.getElementById("healthResult").textContent = JSON.stringify(await res.json(), null, 2);
       } catch (err) {
         document.getElementById("healthResult").textContent = err;
@@ -101,9 +105,17 @@
       const externalUserId = document.getElementById("externalUserId").value;
       try {
         const res = await fetch(`${API_BASE_URL}/api/knot/session?external_user_id=${encodeURIComponent(externalUserId)}`, {
-          method: "POST"
+          method: "POST",
+          headers: { Authorization: AUTH_HEADER }
         });
         const data = await res.json();
+        if (!res.ok || !data.session) {
+          latestSession = null;
+          const message = data.detail ?? "Failed to create Knot session";
+          logKnotEvent(`Session creation failed: ${message}`);
+          document.getElementById("sessionResult").textContent = JSON.stringify(data, null, 2);
+          return;
+        }
         latestSession = data.session;
         logKnotEvent("Session created. Ready to launch Knot UI.");
         document.getElementById("sessionResult").textContent = JSON.stringify(data, null, 2);
@@ -164,7 +176,8 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-knot-event": "AUTHENTICATED"
+            "x-knot-event": "AUTHENTICATED",
+            Authorization: AUTH_HEADER
           },
           body: document.getElementById("webhookPayload").value
         });
@@ -200,7 +213,10 @@
       try {
         const res = await fetch(`${API_BASE_URL}/api/knot/transactions/sync`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: AUTH_HEADER
+          },
           body: JSON.stringify(body),
         });
         const data = await res.json();
@@ -231,7 +247,10 @@
       try {
         const res = await fetch(`${API_BASE_URL}/api/knot/transactions/mock-sync`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: AUTH_HEADER
+          },
           body: JSON.stringify(body),
         });
         const data = await res.json();

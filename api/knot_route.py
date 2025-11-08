@@ -7,6 +7,7 @@ from services.knot_service import (
     sync_transactions_api_call,
     sync_transactions_mock_api_call,
 )
+from services.mock_data import MOCK_ORDER_DATA
 
 router = APIRouter()
 
@@ -86,3 +87,8 @@ async def webhook(request: Request, x_knot_event: str = Header(None)):
         # TODO: store merchant and user info here
         return {"status": "authenticated event handled"}
     return {"status": "ignored"}
+
+
+@router.get("/mock-order")
+async def get_mock_order():
+    return MOCK_ORDER_DATA
