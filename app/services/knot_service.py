@@ -1,16 +1,31 @@
 import base64
+import os
 import httpx
 from fastapi import HTTPException
+from dotenv import load_dotenv
 
-client_id = "dda0778d-9486-47f8-bd80-6f2512f9bcdb"
-secret = "884d84e855054c32a8e39d08fcd9845d"
-auth_str = f"{client_id}:{secret}"
-b64_auth_str = base64.b64encode(auth_str.encode()).decode()
-KNOT_API_BASE = "https://development.knotapi.com"
-KNOT_ENVIRONMENT = "development"
-KNOT_DEFAULT_PRODUCT = "transaction_link"
-KNOT_DEFAULT_MERCHANT_IDS = [19]
-KNOT_TUNNEL_BASE = "https://knot.tunnel.tel"
+load_dotenv()
+
+KNOT_CLIENT_ID = os.getenv("KNOT_CLIENT_ID")
+KNOT_CLIENT_SECRET = os.getenv("KNOT_CLIENT_SECRET")
+KNOT_API_BASE = os.getenv("KNOT_API_BASE", "https://development.knotapi.com")
+KNOT_ENVIRONMENT = os.getenv("KNOT_ENVIRONMENT", "development")
+KNOT_DEFAULT_PRODUCT = os.getenv("KNOT_DEFAULT_PRODUCT", "transaction_link")
+
+_merchant_ids_raw = os.getenv("KNOT_DEFAULT_MERCHANT_IDS", "19")
+try:
+    KNOT_DEFAULT_MERCHANT_IDS = [int(x.strip()) for x in _merchant_ids_raw.split(",") if x.strip()]
+except ValueError:
+    KNOT_DEFAULT_MERCHANT_IDS = [19]
+
+KNOT_TUNNEL_BASE = os.getenv("KNOT_TUNNEL_BASE", "https://knot.tunnel.tel")
+
+
+def _get_b64_auth() -> str:
+    if not KNOT_CLIENT_ID or not KNOT_CLIENT_SECRET:
+        raise HTTPException(status_code=500, detail="Knot credentials not configured")
+    auth_str = f"{KNOT_CLIENT_ID}:{KNOT_CLIENT_SECRET}"
+    return base64.b64encode(auth_str.encode()).decode()
 
 async def create_knot_session_api_call(external_user_id: str):
     payload = {
@@ -21,7 +36,7 @@ async def create_knot_session_api_call(external_user_id: str):
         resp = await client.post(
             f"{KNOT_API_BASE}/session/create",
             headers={
-                "Authorization": f"Basic {b64_auth_str}",
+                "Authorization": f"Basic {_get_b64_auth()}",
                 "Content-Type": "application/json",
                 "Knot-Version": "2.0",
             },
@@ -51,7 +66,7 @@ async def sync_transactions_api_call(
         resp = await client.post(
             f"{KNOT_API_BASE}/transactions/sync",
             headers={
-                "Authorization": f"Basic {b64_auth_str}",
+                "Authorization": f"Basic {_get_b64_auth()}",
                 "Content-Type": "application/json",
             },
             json=payload,
@@ -98,7 +113,7 @@ def compose_knot_sdk_config(
     resolved_merchants = merchant_ids if merchant_ids is not None else KNOT_DEFAULT_MERCHANT_IDS
     return {
         "sessionId": session_id,
-        "clientId": client_id,
+        "clientId": KNOT_CLIENT_ID,
         "environment": KNOT_ENVIRONMENT,
         "product": resolved_product,
         "merchantIds": resolved_merchants,

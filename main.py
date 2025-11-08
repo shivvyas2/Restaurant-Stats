@@ -5,11 +5,48 @@ import re
 from faker import Faker 
 from dedalus_labs import AsyncDedalus, DedalusRunner
 from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from app.api.knot_route import router as knot_router
+from app.services.mock_data import MOCK_ORDER_DATA
+from pathlib import Path
 
 # --- User's Existing Setup ---
 
 fake = Faker()
 load_dotenv()
+
+app = FastAPI(title="Restaurant Stats API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def root():
+    return {"ok": True, "name": "Restaurant Stats API"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+
+@app.get("/mock-order")
+def get_mock_order_root():
+    return MOCK_ORDER_DATA
+
+@app.get("/playground", response_class=HTMLResponse)
+def playground():
+    root_dir = Path(__file__).resolve().parent
+    html_path = root_dir / "playground.html"
+    if not html_path.exists():
+        return HTMLResponse(content="<h1>playground.html not found</h1>", status_code=404)
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+app.include_router(knot_router, prefix="/api/knot", tags=["knot"])
 
 async def agent_call(prompt: str) -> str:
     """

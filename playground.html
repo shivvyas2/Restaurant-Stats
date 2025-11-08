@@ -79,22 +79,15 @@
   </div>
 
   <script>
-    const API_BASE_URL = "https://api.why-knot.tech";
-    const KNOT_CLIENT_ID = "dda0778d-9486-47f8-bd80-6f2512f9bcdb";
-    const KNOT_ENVIRONMENT = "development";
-    const KNOT_PRODUCT = "transaction_link";
-    const KNOT_MERCHANT_IDS = [19];
+    const API_BASE_URL = window.location.origin;
 
     let latestSession = null;
+    let latestSdkConfig = null;
     let knotInstance = null;
-
-    const AUTH_HEADER = "Basic ZGRhMDc3OGQtOTQ4Ni00N2Y4LWJkODAtNmYyNTEyZjliY2RiOmZmNWU1MWI2ZGNmODRhODI5ODk4ZDM3NDQ5Y2JjNDdh";
 
     async function callHealth() {
       try {
-        const res = await fetch(`${API_BASE_URL}/health`, {
-          headers: { Authorization: AUTH_HEADER }
-        });
+        const res = await fetch(`${API_BASE_URL}/health`);
         document.getElementById("healthResult").textContent = JSON.stringify(await res.json(), null, 2);
       } catch (err) {
         document.getElementById("healthResult").textContent = err;
@@ -104,20 +97,24 @@
     async function createSession() {
       const externalUserId = document.getElementById("externalUserId").value;
       try {
-        const res = await fetch(`${API_BASE_URL}/api/knot/session?external_user_id=${encodeURIComponent(externalUserId)}`, {
+        const res = await fetch(`${API_BASE_URL}/api/knot/session/launch`, {
           method: "POST",
-          headers: { Authorization: AUTH_HEADER }
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            external_user_id: externalUserId
+          })
         });
         const data = await res.json();
-        if (!res.ok || !data.session) {
-          latestSession = null;
+        if (!res.ok || !data.session || !data.sdkConfig) {
+          latestSession = null; latestSdkConfig = null;
           const message = data.detail ?? "Failed to create Knot session";
           logKnotEvent(`Session creation failed: ${message}`);
           document.getElementById("sessionResult").textContent = JSON.stringify(data, null, 2);
           return;
         }
-        latestSession = data.session;
-        logKnotEvent("Session created. Ready to launch Knot UI.");
+        latestSession = data.session.session ?? data.session;
+        latestSdkConfig = data.sdkConfig;
+        logKnotEvent("Session created and SDK config received. Ready to launch Knot UI.");
         document.getElementById("sessionResult").textContent = JSON.stringify(data, null, 2);
       } catch (err) {
         document.getElementById("sessionResult").textContent = err;
@@ -133,19 +130,18 @@
         alert("Create a session before launching the Knot UI.");
         return;
       }
+      if (!latestSdkConfig) {
+        alert("SDK configuration missing. Run Create Knot Session again.");
+        return;
+      }
       if (!knotInstance) {
         knotInstance = new window.KnotapiJS.default();
       }
 
       logKnotEvent("Opening Knot UI...");
       knotInstance.open({
-        sessionId: latestSession,
-        clientId: KNOT_CLIENT_ID,
-        environment: KNOT_ENVIRONMENT,
-        product: KNOT_PRODUCT,
-        merchantIds: KNOT_MERCHANT_IDS,
-        useCategories: true,
-        useSearch: true,
+        ...latestSdkConfig,
+        // override entryPoint for playground visibility
         entryPoint: "playground",
         onSuccess: (product, details) => {
           logKnotEvent(`onSuccess: ${product} -> ${JSON.stringify(details)}`);
@@ -176,8 +172,7 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-knot-event": "AUTHENTICATED",
-            Authorization: AUTH_HEADER
+            "x-knot-event": "AUTHENTICATED"
           },
           body: document.getElementById("webhookPayload").value
         });
@@ -214,8 +209,7 @@
         const res = await fetch(`${API_BASE_URL}/api/knot/transactions/sync`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: AUTH_HEADER
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(body),
         });
@@ -248,8 +242,7 @@
         const res = await fetch(`${API_BASE_URL}/api/knot/transactions/mock-sync`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: AUTH_HEADER
+            "Content-Type": "application/json"
           },
           body: JSON.stringify(body),
         });
