@@ -1,0 +1,252 @@
+[
+  {
+    "restaurant": "Agricola Eatery",
+    "address": "11 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350186,
+      "lon": -74.659455
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Mediterra Restaurant & Taverna",
+    "address": "29 Hulfish St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.351535,
+      "lon": -74.66103
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Blue Point Grill",
+    "address": "258 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.346648,
+      "lon": -74.654228
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Mistral",
+    "address": "66 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350605,
+      "lon": -74.659224
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "P.J.'s Pancake House",
+    "address": "154 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.348952,
+      "lon": -74.657542
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Witherspoon Grill",
+    "address": "57 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350408,
+      "lon": -74.659369
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Triumph Brewing Company",
+    "address": "138 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.348482,
+      "lon": -74.657891
+    },
+    "menus": {
+      "Dinner": [
+        "Roasted Chicken",
+        "Grilled Salmon",
+        "Steak Frites"
+      ],
+      "Lunch": [
+        "Burger",
+        "Fish Tacos",
+        "Caesar Salad"
+      ],
+      "Drinks": [
+        "IPA",
+        "Pilsner",
+        "Red Ale"
+      ]
+    }
+  },
+  {
+    "restaurant": "Winberie's Restaurant & Bar",
+    "address": "1 Palmer Sq E, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350722,
+      "lon": -74.659711
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Olives Deli & Bakery",
+    "address": "22 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350207,
+      "lon": -74.659205
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Hoagie Haven",
+    "address": "242 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.346781,
+      "lon": -74.654081
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "The Alchemist & Barrister",
+    "address": "28 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350365,
+      "lon": -74.659174
+    },
+    "menus": {
+      "Lunch": [
+        "Burger",
+        "Turkey Club",
+        "Fish & Chips"
+      ],
+      "Drinks": [
+        "Craft Beer",
+        "Wine"
+      ]
+    }
+  },
+  {
+    "restaurant": "Ivy Inn",
+    "address": "248 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.346846,
+      "lon": -74.654168
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Sushi King",
+    "address": "3562 NJ-27, Princeton, NJ 08540",
+    "coordinates": {
+      "lat": 40.375442,
+      "lon": -74.606103
+    },
+    "menus": {
+      "Dinner": [
+        "Sushi Combo",
+        "Sashimi Platter"
+      ],
+      "Lunch": [
+        "Bento Box",
+        "Maki Roll"
+      ],
+      "Drinks": null
+    }
+  },
+  {
+    "restaurant": "Taste of Mexico",
+    "address": "180 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.349325,
+      "lon": -74.657342
+    },
+    "menus": {
+      "Lunch": [
+        "Tacos",
+        "Burritos"
+      ],
+      "Dinner": [
+        "Enchiladas",
+        "Fajitas"
+      ],
+      "Drinks": [
+        "Margarita",
+        "Soda"
+      ]
+    }
+  },
+  {
+    "restaurant": "Nassau Sushi",
+    "address": "179 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.349179,
+      "lon": -74.657796
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Yankee Doodle Tap Room",
+    "address": "10 Palmer Sq E, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350601,
+      "lon": -74.659754
+    },
+    "menus": {
+      "Drinks": [
+        "Beer",
+        "Cocktail",
+        "Soft Drinks"
+      ]
+    }
+  },
+  {
+    "restaurant": "La Mezzaluna",
+    "address": "25 Witherspoon St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.350184,
+      "lon": -74.659064
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Tortuga's Mexican Village",
+    "address": "41 Leigh Ave, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.356748,
+      "lon": -74.661715
+    },
+    "menus": {
+      "Dinner": [
+        "Nachos",
+        "Chimichanga",
+        "Fajitas"
+      ],
+      "Drinks": [
+        "Margarita",
+        "Mexican Beer"
+      ]
+    }
+  },
+  {
+    "restaurant": "Tiger Noodles House",
+    "address": "260 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.34641,
+      "lon": -74.654271
+    },
+    "menus": null
+  },
+  {
+    "restaurant": "Arlee's Raw Blends",
+    "address": "246 Nassau St, Princeton, NJ 08542",
+    "coordinates": {
+      "lat": 40.346819,
+      "lon": -74.654069
+    },
+    "menus": {
+      "Drinks": [
+        "Cold Pressed Juice",
+        "Smoothie"
+      ]
+    }
+  }
+]

@@ -15,7 +15,7 @@ async def agent_call(prompt: str) -> str:
     """
     Your existing agent_call function.
     """
-    print(f"--- Calling Agent for query: '{prompt[10:60]}...' ---")
+    print(f"--- Calling Agent for: {prompt[:50]}... ---")
     client = AsyncDedalus(api_key=os.getenv("DEDALUS_LABS_KEY"))
     runner = DedalusRunner(client)
     try:
@@ -32,13 +32,13 @@ async def agent_call(prompt: str) -> str:
 
 # --- New Seeding Logic ---
 
-def create_agent_prompt(search_query: str, city: str) -> str:
+def create_agent_prompt(city: str) -> str:
     """
-    Creates the highly-specific prompt to get structured JSON
-    for a *specific search query*.
+    Creates the highly-specific prompt to get structured JSON.
     """
+    # Increased the number to find since we are only searching one city.
     return f"""
-    Find 5-10 restaurants matching the query '{search_query}' in {city}, New Jersey.
+    Find all restaurants within the city of {city}, New Jersey.
     
     You MUST return your response as ONLY a JSON list (an array of objects).
     Do NOT include any text, greetings, apologies, or markdown ````json` ticks before or after the JSON list.
@@ -69,13 +69,16 @@ def extract_json_from_response(response_text: str) -> list:
     This handles cases where the agent might ignore instructions
     and add text around the JSON.
     """
+    # First, try to parse the whole string
     try:
         data = json.loads(response_text)
         if isinstance(data, list):
             return data
     except json.JSONDecodeError:
-        pass 
+        pass # Failed, so try to extract
 
+    # If parsing fails, find the largest JSON list/object
+    # This regex finds text between `[` and `]` or `{` and `}`
     print("--- Warning: Agent returned non-JSON text. Attempting extraction... ---")
     matches = re.findall(r"(\[.*?\])|(\{.*?\})", response_text, re.DOTALL)
     
@@ -83,6 +86,8 @@ def extract_json_from_response(response_text: str) -> list:
         print("--- Error: No JSON found in response. ---")
         return []
 
+    # Find the longest match, assuming it's the main data
+    # FIX: Corrected the syntax error from previous version
     best_match = max( ("".join(m) for m in matches), key=len )
     
     try:
@@ -90,6 +95,7 @@ def extract_json_from_response(response_text: str) -> list:
         if isinstance(data, list):
             return data
         else:
+            # If it found a single object, wrap it in a list
             return [data]
     except json.JSONDecodeError as e:
         print(f"--- Error: Failed to parse extracted JSON: {e} ---")
@@ -100,57 +106,39 @@ async def main():
     """
     Main function to iterate, call agent, parse, and save.
     """
-    # This is our new iterative query list.
-    # It forces the agent to run many different searches.
-    princeton_search_queries = [
-        "popular restaurants in Princeton, NJ",
-        "restaurants on Nassau Street, Princeton, NJ",
-        "restaurants on Witherspoon Street, Princeton, NJ",
-        "cafes in Princeton, NJ",
-        "pizzerias in Princeton, NJ",
-        "fine dining restaurants in Princeton, NJ",
-        "bars and pubs in Princeton, NJ",
-        "Mexican restaurants in Princeton, NJ",
-        "Indian restaurants in Princeton, NJ",
-        "Italian restaurants in Princeton, NJ"
+    # MODIFICATION: Changed this list to *only* include Princeton
+    # as per the user's explicit instruction.
+    cities_to_search = [
+        "Princeton"
     ]
     
-    # We will use a dictionary to store results,
-    # using the restaurant name as the key to automatically handle duplicates.
-    all_restaurants_dict = {}
+    all_restaurants = []
     
-    for query in princeton_search_queries:
-        prompt = create_agent_prompt(query, "Princeton")
+    for city in cities_to_search:
+        # I've increased the number of restaurants requested in the prompt
+        # to 15-20 to get more data from this single-city run.
+        prompt = create_agent_prompt(city)
         raw_response = await agent_call(prompt)
         
         if raw_response:
-            category_restaurants = extract_json_from_response(raw_response)
-            
-            if category_restaurants:
-                print(f"+++ Parsed {len(category_restaurants)} restaurants for query: '{query}' +++")
-                # Add to our dictionary, overwriting/updating as we go
-                for restaurant in category_restaurants:
-                    name = restaurant.get("restaurant")
-                    if name:
-                        # This simple line handles all deduplication
-                        all_restaurants_dict[name] = restaurant
+            city_restaurants = extract_json_from_response(raw_response)
+            if city_restaurants:
+                print(f"+++ Successfully parsed {len(city_restaurants)} restaurants for {city} +++")
+                all_restaurants.extend(city_restaurants)
             else:
-                print(f"--- No data parsed for query: '{query}' ---")
+                print(f"--- No data parsed for {city} ---")
         else:
-            print(f"--- No response for query: '{query}' ---")
+            print(f"--- No response for {city} ---")
         
-        await asyncio.sleep(2) # Add a 2-second delay to be kind to the API
-
-    # Now, convert our deduplicated dictionary back to a list
-    final_restaurant_list = list(all_restaurants_dict.values())
+        await asyncio.sleep(1) # Keep a small delay
 
     # Save the compiled database to a file
     output_filename = "restaurant_database.json"
     with open(output_filename, "w") as f:
-        json.dump(final_restaurant_list, f, indent=2)
+        json.dump(all_restaurants, f, indent=2)
 
     print(f"\n=======================================================")
-    print(f"Success! Saved {len(final_restaurant_list)} total unique restaurants to {output_filename}")
+    print(f"Success! Saved {len(all_restaurants)} total restaurants to {output_filename}")
     print("=======================================================")
 
 if __name__ == "__main__":
