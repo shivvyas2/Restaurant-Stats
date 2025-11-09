@@ -3,7 +3,9 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from pymongo.collection import Collection
 from dotenv import load_dotenv
+from fastapi import APIRouter
 
+router = APIRouter(prefix="/orders", tags=["orders"])
 load_dotenv()
 
 uri = os.getenv("MONGO_URI")
