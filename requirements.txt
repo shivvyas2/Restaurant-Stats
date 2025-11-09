@@ -3,4 +3,4 @@ httpx==0.28.1
 pydantic==2.12.4
 pymongo==4.15.3
 python-dotenv==1.2.1
-Faker
+Faker==33.1.0

@@ -3,13 +3,19 @@ import asyncio
 import json
 import re
 from faker import Faker 
-from dedalus_labs import AsyncDedalus, DedalusRunner
+try:
+    from dedalus_labs import AsyncDedalus, DedalusRunner
+    DEDALUS_AVAILABLE = True
+except ImportError:
+    DEDALUS_AVAILABLE = False
+    AsyncDedalus = None
+    DedalusRunner = None
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from app.api.knot_route import router as knot_router
-from app.mongo import mongo_client
+from app.mongo.mongo_client import router as mongo_router
 from app.services.mock_data import MOCK_ORDER_DATA
 from pathlib import Path
 
@@ -48,12 +54,15 @@ def playground():
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
 
 app.include_router(knot_router, prefix="/api/knot", tags=["knot"])
-app.include_router(mongo_client.router, prefix="/api", tags=["mongo"])
+app.include_router(mongo_router, prefix="/api", tags=["mongo"])
 
 async def agent_call(prompt: str) -> str:
     """
     Your existing agent_call function.
     """
+    if not DEDALUS_AVAILABLE:
+        print("--- Dedalus Labs not available ---")
+        return "[]"
     print(f"--- Calling Agent for query: '{prompt[10:60]}...' ---")
     client = AsyncDedalus(api_key=os.getenv("DEDALUS_LABS_KEY"))
     runner = DedalusRunner(client)
@@ -194,3 +203,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
