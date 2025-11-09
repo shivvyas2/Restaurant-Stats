@@ -15,7 +15,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from app.api.knot_route import router as knot_router
-from app.mongo.mongo_client import router as mongo_router
+from app.api import semantic_search_route
+from app.mongo import mongo_client
 from app.services.mock_data import MOCK_ORDER_DATA
 from pathlib import Path
 
@@ -54,7 +55,8 @@ def playground():
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
 
 app.include_router(knot_router, prefix="/api/knot", tags=["knot"])
-app.include_router(mongo_router, prefix="/api", tags=["mongo"])
+app.include_router(mongo_client.router, prefix="/api", tags=["mongo"])
+app.include_router(semantic_search_route.router, prefix="/api", tags=["semantic-search"])
 
 async def agent_call(prompt: str) -> str:
     """
